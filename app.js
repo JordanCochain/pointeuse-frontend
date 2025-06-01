@@ -946,4 +946,22 @@ async function subscribeToPushNotifications() {
 document.addEventListener("DOMContentLoaded", () => {
   subscribeToPushNotifications();
 });
+document.getElementById('notifications').addEventListener('change', async function () {
+  if (this.checked) {
+    if (!('Notification' in window)) {
+      alert('Ce navigateur ne supporte pas les notifications.');
+      this.checked = false;
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+
+    if (permission === 'granted') {
+      new Notification('Notifications activées !');
+    } else {
+      alert('Permission refusée pour les notifications.');
+      this.checked = false;
+    }
+  }
+});
 
