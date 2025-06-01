@@ -913,7 +913,8 @@ async function subscribeToPushNotifications() {
 
   try {
     const permission = await Notification.requestPermission();
-    console.log("Permission actuelle :", Notification.permission);
+    console.log("Permission actuelle :", permission);
+    alert("Permission actuelle : " + permission);
     if (permission !== 'granted') {
       console.warn("Notifications refusées");
       return;
