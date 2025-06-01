@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon App de Pointage</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="theme-color" content="#0d47a1" />
+</head>
+<body>
+
+  <h1>Application Pointage</h1>
+
+  <nav>
+    <button data-tab="pointage" class="active">Pointage</button>
+    <button data-tab="agenda">Agenda</button>
+    <button data-tab="contact">Contact</button>
+    <button data-tab="evenements">Événements</button>
+    <button data-tab="ConditionsContrat">Conditions contrat</button>
+    <button data-tab="salaire">Salaire mois en cours</button>
+    <button data-tab="preferences">Préférences</button>
+
+  </nav>
+
+<section id="pointage" class="tab-content active">
+  <label for="date">Date :</label>
+  <input type="date" id="date" />
+
+<div class="buttons-group" style="margin-top:10px;">
+  <!-- ARRIVÉE -->
+<button id="btn-arrivee" class="btn-pointage">Pointer arrivée</button>
+<span id="heure-arrivee">Non pointé</span>
+<div id="info-arrivee" class="bouton-info"></div>
+
+<button id="btn-debut-pause" class="btn-pointage">Début pause</button>
+<span id="heure-debutPause">Non pointé</span>
+<div id="info-debutPause" class="bouton-info"></div>
+
+<button id="btn-fin-pause" class="btn-pointage">Fin pause</button>
+<span id="heure-finPause">Non pointé</span>
+<div id="info-finPause" class="bouton-info"></div>
+
+<button id="btn-depart" class="btn-pointage">Départ</button>
+<span id="heure-depart">Non pointé</span>
+<div id="info-depart" class="bouton-info"></div>
+</div>
+
+  <p id="heures-travail" style="margin-top:20px;"></p>
+  <p id="heures-sup"></p>
+  <p id="salaire-estime"></p>
+  <button id="btn-enregistrer">Enregistrer</button>
+</section>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("✅ Service Worker enregistré"))
+        .catch(err => console.error("Erreur Service Worker", err));
+    }
+  </script>
+
+  <!-- Section AGENDA -->
+  <section id="agenda" class="tab-content">
+    <h2>Agenda</h2>
+    <div class="agenda-controls">
+      <button id="mois-precedent">◀</button>
+      <h3 id="mois-annee-label"></h3>
+      <button id="mois-suivant">▶</button>
+    </div>
+    <div id="grille-agenda" class="agenda-grid"></div>
+    <div id="detail-jour" class="detail-jour"></div>
+    <button id="btn-export-excel" class="btn-success" style="margin-top:15px;">
+      Exporter heures mensuelles Excel
+    </button>
+  </section>
+
+  <!-- Section Conditions Contrat -->
+  <section id="ConditionsContrat" class="tab-content">
+    <h2>Conditions de travail et rémunération</h2>
+
+  <label for="qualification">Qualification :</label>
+  <input type="text" id="qualification" value="Technicien de réparation" disabled />
+
+  <label for="salaire-base">Salaire mensuel brut (€) :</label>
+  <input type="number" id="salaire-base" step="0.01" value="2385.00" />
+
+  <label for="taux-horaire">Taux horaire brut (€) :</label>
+  <input type="number" id="taux-horaire" step="0.01" value="15.72" />
+
+  <label for="duree-hebdo">Durée hebdomadaire (heures) :</label>
+  <input type="number" id="duree-hebdo" step="0.1" value="35" />
+
+  <label for="jours-par-semaine">Jours travaillés par semaine :</label>
+  <input type="number" id="jours-par-semaine" min="1" max="7" value="4" />
+
+  <label for="heures-sup25">Heures sup. taux 25% au-delà de :</label>
+  <input type="number" id="heures-sup25" step="0.1" value="35" />
+
+  <label for="heures-sup50">Heures sup. taux 50% au-delà de :</label>
+  <input type="number" id="heures-sup50" step="0.1" value="43" />
+
+  <label for="prime-semestrielle">Prime semestrielle (activable à 2 mois) :</label>
+  <input type="checkbox" id="prime-semestrielle" />
+
+  <label for="valeur-ticket">Ticket restaurant (€) :</label>
+  <input type="number" id="valeur-ticket" step="0.01" value="8.50" />
+
+  <label for="part-salariale-tr">Part salariale ticket restaurant (€) :</label>
+  <input type="number" id="part-salariale-tr" step="0.01" value="3.40" />
+
+  <label for="horaire-debut">Début journée type :</label>
+  <input type="time" id="horaire-debut" value="07:30" />
+
+  <label for="horaire-fin">Fin journée type :</label>
+  <input type="time" id="horaire-fin" value="17:00" />
+
+  <label for="periode-contrat">Période de contrat :</label>
+  <input type="text" id="periode-contrat" value="26/05/2025 au 24/08/2025" disabled />
+</section>  </section>
+
+<!-- Section Salaire -->
+<section id="salaire" class="tab-content">
+  <h2>Estimation du salaire - Mois en cours</h2>
+
+    <div class="salaire-box">
+      <p id="salaire-heures-normales"></p>
+      <p id="salaire-heures-sup"></p>
+      <p id="salaire-brut-estime"></p>
+    </div>
+
+    <button id="recalculer-salaire" class="btn-primary" style="margin-top:1em;">Recalculer</button>
+  </section>
+
+  <!-- Section CONTACT -->
+  <section id="contact" class="tab-content">
+    <h2>Contacts Professionnels</h2>
+    <form id="form-contact">
+      <input type="text" name="nom" placeholder="Nom" required />
+      <input type="text" name="prenom" placeholder="Prénom" required />
+      <input type="tel" name="telephone" placeholder="Téléphone" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <button type="submit" class="btn-primary">Ajouter Contact</button>
+    </form>
+    <div id="contacts-list" class="contacts-list-container"></div>
+  </section>
+
+<section id="evenements" class="tab-content">
+  <h2 style="color: white;">Créer un événement (style Outlook)</h2>
+
+  <div class="form-outlook-style dark">
+    <form id="form-evenement-outlook">
+      <input type="text" id="titre-evenement" class="input-dark" placeholder="Titre de l’événement" required />
+
+      <div class="row">
+        <input type="date" id="date-debut-evenement" class="input-dark" required />
+        <input type="time" id="heure-debut-evenement" class="input-dark" required />
+        <label class="toggle-switch">
+          <input type="checkbox" id="journee-entiere-evenement" />
+          <span>Journée entière</span>
+        </label>
+      </div>
+
+      <div class="row">
+        <input type="date" id="date-fin-evenement" class="input-dark" required />
+        <input type="time" id="heure-fin-evenement" class="input-dark" required />
+      </div>
+
+      <select id="repetition-evenement" class="input-dark">
+        <option>Ne pas répéter</option>
+        <option>Chaque jour</option>
+        <option>Chaque semaine</option>
+        <option>Chaque mois</option>
+      </select>
+
+      <select id="rappel-evenement" class="input-dark">
+        <option>15 minutes avant</option>
+        <option>30 minutes avant</option>
+        <option>1 heure avant</option>
+        <option>Aucun rappel</option>
+      </select>
+
+      <input type="text" id="lieu-evenement" class="input-dark" placeholder="Lieu" />
+      <textarea id="description-evenement" class="input-dark" placeholder="Description"></textarea>
+
+      <button type="submit" id="enregistrer-evenement" class="btn-save">Enregistrer</button>
+    </form>
+  </div>
+</section>
+
+  <section id="preferences" class="tab-content">
+  <div class="preferences-container">
+    <h2 class="titre-preferences">Paramètres</h2>
+    
+    <label><input type="checkbox" id="mode-sombre"> Mode sombre</label><br>
+    <label><input type="checkbox" id="notifications"> Notifications (placeholder)</label>
+
+    <br><br>
+    <button class="btn-synchro" id="forcer-synchro">Forcer synchronisation</button>
+
+    <br><br>
+    <label for="langue-select">Langue :</label>
+    <select id="langue-select">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+    </select>
+
+    <br><br>
+    <button id="voir-tutoriel">Voir le tutoriel</button>
+
+    <br><br>
+    <hr>
+    <button id="sauvegarder-localement">Sauvegarder localement</button>
+    <button id="restaurer-sauvegarde">Restaurer une sauvegarde</button>
+  </div>
+</section>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_XTvJ5CO0NH3a5hfyz-hQZ_k-QoKtFZc",
+      authDomain: "pointage-app.firebaseapp.com",
+      projectId: "pointage-app",
+      storageBucket: "pointage-app.appspot.com",
+      messagingSenderId: "978164230245",
+      appId: "1:978164230245:web:b7f3f3e87b299b26f0a6d4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Rendre accessible à app.js
+    window.db = db;
+  </script>
+
+  <!-- Autres scripts -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+  <div id="modal-evenement-outlook" class="modal-overlay" style="display: none;">
+  <div class="modal-content dark">
+    <div class="modal-header">
+      <button id="save-event" class="btn-save">Enregistrer</button>
+      <button id="cancel-event" class="btn-cancel">Abandonner</button>
+    </div>
+
+    <form id="form-outlook-event">
+      <input type="text" id="titre-outlook" placeholder="Ajoutez un titre" required />
+
+      <div class="time-row">
+        <input type="date" id="date-debut-outlook" required />
+        <input type="time" id="heure-debut-outlook" required />
+      </div>
+
+      <div class="time-row">
+        <input type="date" id="date-fin-outlook" required />
+        <input type="time" id="heure-fin-outlook" required />
+        <label class="toggle-container">
+          <input type="checkbox" id="journee-entiere" />
+          <span>Journée entière</span>
+        </label>
+      </div>
+
+      <select id="repetition">
+        <option>Ne pas répéter</option>
+        <option>Chaque jour</option>
+        <option>Chaque semaine</option>
+        <option>Chaque mois</option>
+      </select>
+
+      <select id="rappel">
+        <option>15 minutes avant</option>
+        <option>30 minutes avant</option>
+        <option>1 heure avant</option>
+        <option>Aucun rappel</option>
+      </select>
+
+      <input type="text" id="lieu-outlook" placeholder="Rechercher un lieu" />
+
+      <textarea id="description-outlook" placeholder="Ajoutez une description"></textarea>
+
+      <a href="#" style="color: #4da6ff; font-size: 0.85em; display: inline-block; margin-top: 5px;">Autres options</a>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>
